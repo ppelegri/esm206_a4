@@ -50,14 +50,37 @@ hares <- hares_raw %>%
 ```
 
 Annual juvenile hare trap counts. Count the total number of juvenile hare trappings during each year of the study, and create a finalized data visualization of the counts by year. Include a figure caption below the figure in your report. 
-```{r}
+```{r, fig.cap = "**Figure 1: Count of Juvenile Snowshoe Hares.** This graph displays counts of juvenile snowshe hares that were trapped in Bonanza Creek Experimental Forest. The observation period spans 1998 to 2012."}
+# Group hares by year and create count per year
 hares_trap_counts <- hares %>% 
   group_by(year) %>% 
   summarize(count = n())
 
-kable(hares_trap_counts, # create table
-      col = c("Year", "Count"), # assign column names
-      caption = "Table 1: Count of Trapped Juvenile Hares") %>% 
+# Visualize count of trapped hares by year
+ggplot(hares_trap_counts,
+       aes(x = year, y = count)) +
+  geom_line() +
+  geom_point() +
+  labs(x = "Year", y = "Count")
+```
+
+Create table displaying maximum, minimum, and median annual counts of juvenile snowshoe hares
+```{r}
+# Group hares by year and calculate count per year as well as minimum count, maximum count, and median count
+hares_counts_stats <- hares_trap_counts %>% 
+  summarize(min_count = min(count),
+            max_count = max(count),
+            med_count = median(count))
+  
+
+# Create table of summary statistics
+kable(hares_counts_stats, # create table
+      col = c("Minimum Count", "Maximum Count", "Median Count"), # assign column names
+      caption = "Table 1: Maximum, minimum, and median annual count of snowshoe hares from 1998 to 2012") %>% 
   kable_styling(full_width = FALSE) # make table narrower
 ```
 
+**[INSERT 3-4 sentences describing major takeaways].** What were the minimum and maximum counts of juvenile hare trappings?
+Mean or median annual number of juvenile hares trapped?
+General/notable trends?
+These are absolute counts, but this count is also impacted by effort (e.g. the number of days and number of traps in the study each year). What would you suggest be done moving forward (you are not expected to actually do this) to standardize the juvenile hare population in future analyses?
