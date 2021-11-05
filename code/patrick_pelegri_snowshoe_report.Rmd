@@ -1,0 +1,63 @@
+---
+title: "Snowshoe Hares"
+author: "Patrick Pelegri-O'Day"
+date: "11/5/2021"
+output: html_document
+---
+
+## Introduction
+A 4 - 5 sentence "mini-introduction" to what this study is exploring, including basic background information about the subject, site and study (with citations as needed), and a brief overview of what is included in the exploratory report. 
+
+## Data and Analyses
+A 3 - 4 sentence section in which you briefly describe the data, including citation & credit as needed, and provide an overview of the main analysis, statistical methods and tools used.
+
+**Data citation:** Kielland, K., F.S. Chapin, R.W. Ruess, and Bonanza Creek LTER. 2017. Snowshoe hare physical data in Bonanza Creek Experimental Forest: 1999-Present ver 22. Environmental Data Initiative. https://doi.org/10.6073/pasta/03dce4856d79b91557d8e6ce2cbcdc14
+
+**Link to metadata:** https://portal.edirepository.org/nis/metadataviewer?packageid=knb-lter-bnz.55.22
+
+## Setup
+
+Attach packages
+```{r setup, include=TRUE, message = FALSE, warning = FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+
+library(tidyverse)
+library(here)
+library(kableExtra)
+library(lubridate)
+
+library(effsize)
+library(broom)
+library(ggbeeswarm)
+
+
+```
+
+Read in the data
+```{r}
+hares_raw <-
+  read_csv(show_col_types = FALSE, here("data", "bonanza_hares.csv"))
+```
+
+
+## Data exploration
+
+Convert date column into YYYY-MM-DD format, change class to Date, create column year
+```{r}
+hares <- hares_raw %>% 
+  mutate(date = mdy(date)) %>% # replace original date column with new date column in YYYY-MM-DD format in which column class is "Date"
+  mutate(year = year(date)) # create new column called year that contains the year, derived from the date column
+```
+
+Annual juvenile hare trap counts. Count the total number of juvenile hare trappings during each year of the study, and create a finalized data visualization of the counts by year. Include a figure caption below the figure in your report. 
+```{r}
+hares_trap_counts <- hares %>% 
+  group_by(year) %>% 
+  summarize(count = n())
+
+kable(hares_trap_counts, # create table
+      col = c("Year", "Count"), # assign column names
+      caption = "Table 1: Count of Trapped Juvenile Hares") %>% 
+  kable_styling(full_width = FALSE) # make table narrower
+```
+
