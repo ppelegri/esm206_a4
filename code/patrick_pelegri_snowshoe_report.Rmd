@@ -202,3 +202,52 @@ A 2 - 3 sentence comprehensive statement of the means comparison, including at l
 - Effect size (Cohen's *d*) (see effsize::cohen.d() example in the Lab 5 key)
 - Outcome of an unpaired two-sample t-test
 
+## Relationship between juvenile weight and hind foot length
+
+Visually explore relationship between juvenile weight and hind foot length
+```{r}
+ggplot(hares,
+       aes(x = weight, y = hindft)) +
+  geom_point() +
+  labs(x = "Weight (g)", y = "Hind foot length (mm)")
+```
+
+Explore linear regression relating juvenile weight and hind foot length
+```{r}
+# Run linear regression
+hares_lm <- lm(hindft ~ weight, data = hares)
+
+# Get tidy versions of the model output to call later on in text
+hares_lm_tidy <- tidy(hares_lm)
+hares_lm_glance <- glance(hares_lm)
+
+# See model diagnostics
+plot(hares_lm)
+
+# Get Pearson's r correlation
+hares_cor <- cor.test(hares$weight, hares$hindft)
+
+# Tidy version of correlation output
+hares_cor_tidy <- tidy(hares_cor)
+```
+
+**Change all the below to be for hares**
+The relationship between penguin flipper length and body mass appears relatively linear, both across and within species (Figure 3). Simple linear regression revealed that flipper length significantly predicts penguin body mass (p < 0.001, R^2^ = `r round(penguin_lm_glance$r.squared,2)`) with an average slope of $\beta$ = `r round(penguin_lm_tidy$estimate[2], 2)` g mm^-1^ (i.e., for each one millimeter increase in flipper length we expect an average increase in body mass of `r round(penguin_lm_tidy$estimate[2], 2)` g). Flipper length and body mass are strongly, and significantly, positively correlated (Pearson's *r* = `r round(penguin_cor_tidy$estimate,2)`, p < 0.001). Diagnostic plots (not included) reveal normally distributed and homoscedastic residuals. 
+
+```{r penguin_model_graph}
+ggplot(data = penguins, aes(x = flipper_length_mm, y = body_mass_g)) +
+  geom_point(aes(color = species, pch = species), size = 2) +
+  scale_color_manual(values = c("goldenrod2","cyan4","coral"), 
+                     name = "Penguin species") +
+  scale_shape_manual(values = c(16,17,18), 
+                     name = "Penguin species") +
+  geom_smooth(method = "lm", se = FALSE, color = "gray30") +
+  theme_minimal() +
+  labs(x = "\nFlipper length (mm)",
+       y = "Body mass (g)\n") +
+  theme(legend.position = c(0.15, 0.7))
+```
+
+**Figure 3.** Relationship between flipper length (mm) and body mass (g) for the three penguin species. Points indicate individual penguin measurements (Adélie = gold circles; chinstrap = teal triangles; gentoo = coral diamonds). Linear model summary: $\beta$~1~ = `r round(penguin_lm_tidy$estimate[2], 2)` g mm^-1^, p < 0.001, R^2^ = `r round(penguin_lm_glance$r.squared,2)`, Pearson's *r* = `r round(penguin_cor_tidy$estimate,2)`).
+```
+
