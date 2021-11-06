@@ -40,16 +40,26 @@ hares_raw <-
 ```
 
 
-## Data exploration
+## Initial data wrangling
 
-Convert date column into YYYY-MM-DD format, change class to Date, create column year
+Convert date column into YYYY-MM-DD format, change class to Date, create column year, create column grid_full with full site names, replace values in column sex with fully spelled out labels
 ```{r}
 hares <- hares_raw %>% 
   mutate(date = mdy(date)) %>% # replace original date column with new date column in YYYY-MM-DD format in which column class is "Date"
-  mutate(year = year(date)) # create new column called year that contains the year, derived from the date column
+  mutate(year = year(date)) %>% # create new column called year that contains the year, derived from the date column
+  mutate(grid_full = case_when( # add a new column grid_full, which contains full site names taken from metadata
+    grid %in% c("bonrip") ~ "Bonanza Riparian",
+    grid %in% c("bonmat") ~ "Bonanza Mature",
+    grid %in% c("bonbs") ~ "Bonanza Black Spruce")) %>% 
+  mutate(sex = case_when(
+    sex %in% c("m") ~ "Male",
+    sex %in% c("f") ~ "Female",
+    sex %in% c("NA") ~ "NA"))
 ```
 
-Annual juvenile hare trap counts. Count the total number of juvenile hare trappings during each year of the study, and create a finalized data visualization of the counts by year. Include a figure caption below the figure in your report. 
+## Visualize annual juvenile hare trap counts
+
+Count the total number of juvenile hare trappings during each year of the study, and create a finalized data visualization of the counts by year. Include a figure caption below the figure in your report. 
 ```{r, fig.cap = "**Figure 1: Count of Juvenile Snowshoe Hares.** This graph displays counts of juvenile snowshe hares that were trapped in Bonanza Creek Experimental Forest. The observation period spans 1998 to 2012."}
 # Group hares by year and create count per year
 hares_trap_counts <- hares %>% 
@@ -84,3 +94,32 @@ kable(hares_counts_stats, # create table
 Mean or median annual number of juvenile hares trapped?
 General/notable trends?
 These are absolute counts, but this count is also impacted by effort (e.g. the number of days and number of traps in the study each year). What would you suggest be done moving forward (you are not expected to actually do this) to standardize the juvenile hare population in future analyses?
+
+## Visualize juvenile hare weights
+
+Create a finalized data visualization (or visualizations) in which you compare **juvenile hare weights by sex and site (grid)** (ignore other variables). You should include groups where these variables are not recorded (`NA`). Include finalized figure captions below your visualization(s).
+
+Create a faceted scatter plot comparing juvenile hare weights by sex and site, including groups where these variables are not recorded (NA)
+```{r, fig.cap = "**Figure 2: Juvenile hare weights by sex and site.** These three graphs display juvenile hare weights (g) by sex. The graphs are faceted by site of observation."}
+ggplot(hares,
+       aes(x = sex, y = weight, 
+           color = grid_full)) +
+  geom_jitter() +
+  facet_wrap(~grid_full) +
+  labs(x = "Sex", y = "Weight (g)", color = "Site")
+```
+
+Compare mean and standard deviation of hare weight by sex and site
+```{r}
+hares_wt_sex_site <- hares %>% 
+  group_by(sex, grid_full) %>% 
+   summarize(mean = round(mean(weight, na.rm = TRUE), 1), # find mean size and round to 1 decimal point
+             sd = round(sd(weight, na.rm = TRUE), 1), # find sd of size distribution and round to 1 decimal point
+             sample_size = n()) # count sample size
+
+kable(hares_wt_sex_site, # create table
+      col = c("Sex", "Site", "Mean Weight (g)", "Standard deviation", "Sample Size"), # assign column names
+      caption = "Table 2: Summary statistics on weight of juvenile hares by sex and site") %>% 
+  kable_styling(full_width = FALSE) # make table narrower
+```
+
