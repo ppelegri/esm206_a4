@@ -110,16 +110,95 @@ ggplot(hares,
 ```
 
 Compare mean and standard deviation of hare weight by sex and site
+**I'm asked to make a similar table below; should I still include this table here?**
 ```{r}
+# Create a data frame from hares that groups by sex and site name ("grid_full") and calculates summary statistics for hare weight
 hares_wt_sex_site <- hares %>% 
   group_by(sex, grid_full) %>% 
-   summarize(mean = round(mean(weight, na.rm = TRUE), 1), # find mean size and round to 1 decimal point
-             sd = round(sd(weight, na.rm = TRUE), 1), # find sd of size distribution and round to 1 decimal point
-             sample_size = n()) # count sample size
+   summarize(mean = round(mean(weight, na.rm = TRUE), 1),
+             sd = round(sd(weight, na.rm = TRUE), 1),
+             sample_size = n())
 
-kable(hares_wt_sex_site, # create table
-      col = c("Sex", "Site", "Mean Weight (g)", "Standard deviation", "Sample Size"), # assign column names
+# Create a table that displays the summary statisics calculated in the data frame above
+kable(hares_wt_sex_site,
+      col = c("Sex", "Site", "Mean Weight (g)", "Standard deviation", "Sample Size"),
       caption = "Table 2: Summary statistics on weight of juvenile hares by sex and site") %>% 
-  kable_styling(full_width = FALSE) # make table narrower
+  kable_styling(full_width = FALSE)
 ```
+
+Then, in 2 - 3 sentences below your visualization(s) describe in text the main takeaways that you would want the audience to understand from your figures.
+
+- Have I updated graph labels, headers in facets, etc. to make it as straightforward as possible for viewers?
+- Have I simplified and finalized my data visualization(s) to include components that are useful for the audience?
+
+## Juvenile weight comparison for male and female snowshoe hares
+
+Create a table of summary statistics on hare weight by sex
+```{r}
+# Create a data frame from hares that groups by sex and calculates summary statistics for hare weight
+hares_wt_sex <- hares %>% 
+  group_by(sex) %>% 
+   summarize(mean = round(mean(weight, na.rm = TRUE), 1),
+             sd = round(sd(weight, na.rm = TRUE), 1),
+             sample_size = n())
+
+# Create a table that displays the summary statistics calculated in the data frame above
+kable(hares_wt_sex,
+      col = c("Sex", "Mean Weight (g)", "Standard deviation", "Sample Size"),
+      caption = "Table 3: Summary statistics on weight of juvenile hares by sex") %>% 
+  kable_styling(full_width = FALSE)
+```
+
+```{r, include = FALSE}
+# Data exploration to determine whether t.test is appropriate
+
+# Pull vectors of weights for male and female juvenile snowshoe hares
+
+f_hares <- hares %>% 
+  filter(sex == "Female") %>% 
+  pull(weight)
+
+m_hares <- hares %>% 
+  filter(sex == "Male") %>% 
+  pull(weight)
+
+# Plot histograms & qq-plots to check assumptions
+hist(f_hares) # Looks normal
+qqnorm(f_hares) # Relatively linear
+hist(m_hares) # Looks pretty normal
+qqnorm(m_hares) # Looks a little skewed but normal enough
+
+# Overall: assumptions of normality hold. Because of large sample size (>1000) Central Limit Theorem holds and we expect means to be normally distributed. So, two-sample t-test is ok for means comparison.
+```
+
+Compare means: difference in means, effect size, unpaired two-sample t-test
+```{r}
+female_sample <- hares %>% 
+  filter(sex == "Female") %>% 
+  pull(weight)
+
+female_sample <- female_sample[!is.na(data)] # remove NA values from female_sample
+
+male_sample <- hares %>% 
+  filter(sex == "Male") %>% 
+  pull(weight)
+
+male_sample <- male_sample[!is.na(data)]
+
+hares_t <- t.test(female_sample, male_sample)
+hares_t
+
+# Question: why am I getting NA for my cohen's test?
+hares_cohen <- cohen.d(female_sample, male_sample)
+hares_cohen
+
+mean(female_sample) - mean(male_sample)
+```
+
+
+A finalized table containing the mean, standard deviation, and sample size for male and female juvenile snowshoe hares, with a table caption (remember, a table caption should be placed *above* the table in your report)
+A 2 - 3 sentence comprehensive statement of the means comparison, including at least:
+- The actual difference in means
+- Effect size (Cohen's *d*) (see effsize::cohen.d() example in the Lab 5 key)
+- Outcome of an unpaired two-sample t-test
 
