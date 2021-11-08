@@ -5,10 +5,10 @@ date: "11/5/2021"
 output: html_document
 ---
 
-## Introduction
+## Introduction **UPDATE**
 A 4 - 5 sentence "mini-introduction" to what this study is exploring, including basic background information about the subject, site and study (with citations as needed), and a brief overview of what is included in the exploratory report. 
 
-## Data and Analyses
+## Data and Analyses **UPDATE**
 A 3 - 4 sentence section in which you briefly describe the data, including citation & credit as needed, and provide an overview of the main analysis, statistical methods and tools used.
 
 **Data citation:** Kielland, K., F.S. Chapin, R.W. Ruess, and Bonanza Creek LTER. 2017. Snowshoe hare physical data in Bonanza Creek Experimental Forest: 1999-Present ver 22. Environmental Data Initiative. https://doi.org/10.6073/pasta/03dce4856d79b91557d8e6ce2cbcdc14
@@ -25,7 +25,6 @@ library(tidyverse)
 library(here)
 library(kableExtra)
 library(lubridate)
-
 library(effsize)
 library(broom)
 library(ggbeeswarm)
@@ -126,7 +125,7 @@ kable(hares_wt_sex_site,
   kable_styling(full_width = FALSE)
 ```
 
-Then, in 2 - 3 sentences below your visualization(s) describe in text the main takeaways that you would want the audience to understand from your figures.
+**Then, in 2 - 3 sentences below your visualization(s) describe in text the main takeaways that you would want the audience to understand from your figures.**
 
 - Have I updated graph labels, headers in facets, etc. to make it as straightforward as possible for viewers?
 - Have I simplified and finalized my data visualization(s) to include components that are useful for the audience?
@@ -173,81 +172,87 @@ qqnorm(m_hares) # Looks a little skewed but normal enough
 
 Compare means: difference in means, effect size, unpaired two-sample t-test
 ```{r}
-female_sample <- hares %>% 
+# create vector f_hares that contains weights only of female hares
+f_hares <- hares %>% 
   filter(sex == "Female") %>% 
   pull(weight)
 
-female_sample <- female_sample[!is.na(data)] # remove NA values from female_sample
+f_hares <- f_hares[!is.na(f_hares)] # remove NA values from f_hares
 
-male_sample <- hares %>% 
+# create vector m_hares that contains weights only of male hares
+m_hares <- hares %>% 
   filter(sex == "Male") %>% 
   pull(weight)
 
-male_sample <- male_sample[!is.na(data)]
+m_hares <- m_hares[!is.na(m_hares)] # remove NA values from m_hares
 
-hares_t <- t.test(female_sample, male_sample)
-hares_t
+# run t-test
+hares_t <- t.test(f_hares, m_hares)
 
-# Question: why am I getting NA for my cohen's test?
-hares_cohen <- cohen.d(female_sample, male_sample)
-hares_cohen
+# get tidy model results to call outputs in-line: 
+hares_t_tidy <- tidy(hares_t)
 
-mean(female_sample) - mean(male_sample)
+# get effect size using cohen.d()
+hares_cohen <- cohen.d(f_hares, m_hares)
+
+# find means and SDs for weights of male & female hares
+female_mean <- mean(f_hares)
+male_mean <- mean(m_hares)
+female_sd <- sd(f_hares)
+male_sd <- sd(m_hares)
 ```
 
+On average, juvenile female snowshoe hares are heavier than juvenile male snowshoe hares (`r round(female_mean,2)` $\pm$ `r round(female_sd, 2)` g and `r round(male_mean,2)` $\pm$ `r round(male_sd, 2)` g, respectively. The absolute difference in means is `r round(female_mean, 2) - round(male_mean, 2)` g, a difference of `r round((female_mean - male_mean)/((female_mean + male_mean)/2)*100, 2)`%. However, the difference in means is not significant (Welch's two-sample t-test: t(`r round(hares_t_tidy$parameter,2)`) = `r round(hares_t_tidy$statistic,2)`, p-value = `r hares_t_tidy$p.value`, and the effect size is negligible (Cohen's *d* = `r round(hares_cohen$estimate,2)`).
 
-A finalized table containing the mean, standard deviation, and sample size for male and female juvenile snowshoe hares, with a table caption (remember, a table caption should be placed *above* the table in your report)
-A 2 - 3 sentence comprehensive statement of the means comparison, including at least:
-- The actual difference in means
-- Effect size (Cohen's *d*) (see effsize::cohen.d() example in the Lab 5 key)
-- Outcome of an unpaired two-sample t-test
+## Relationship between juvenile snowshoe hare weight and hind foot length
 
-## Relationship between juvenile weight and hind foot length
-
-Visually explore relationship between juvenile weight and hind foot length
+Visually explore relationship between hare weight and hind foot length
 ```{r}
 ggplot(hares,
-       aes(x = weight, y = hindft)) +
+       aes(x = hindft, y = weight)) +
   geom_point() +
-  labs(x = "Weight (g)", y = "Hind foot length (mm)")
+  labs(x = "Hind foot length (mm)", y = "Weight (g)")
 ```
 
-Explore linear regression relating juvenile weight and hind foot length
+Explore linear regression relating hare weight and hind foot length
 ```{r}
-# Run linear regression
-hares_lm <- lm(hindft ~ weight, data = hares)
+# run linear regression
+hares_lm <- lm(weight ~ hindft, data = hares)
 
-# Get tidy versions of the model output to call later on in text
+# get tidy versions of the model output to call later on in text
 hares_lm_tidy <- tidy(hares_lm)
 hares_lm_glance <- glance(hares_lm)
 
-# See model diagnostics
+# visualize model diagnostics
 plot(hares_lm)
 
-# Get Pearson's r correlation
+# get Pearson's r correlation
 hares_cor <- cor.test(hares$weight, hares$hindft)
 
-# Tidy version of correlation output
+# get tidy version of correlation output
 hares_cor_tidy <- tidy(hares_cor)
 ```
+The relationship between juvenile snowshoe hare weight and hind foot length appears somewhat linear, but with significant heteroscedasticity (Figure 3). Single variable linear regression showed that hind foot length (mm) significantly predicts juvenile hare weight (p < 0.001, R^2^ = `r round(hares_lm_glance$r.squared,2)`) with an average slope of $\beta$ = `r round(hares_lm_tidy$estimate[2], 2)` g mm^-1^ (i.e., for each one millimeter increase in hind foot length we expect an average increase in weight of `r round(hares_lm_tidy$estimate[2], 2)` g). Juvenile hare hind foot length and weight are strongly and significantly positively correlated (Pearson's *r* = `r round(hares_cor_tidy$estimate,2)`, p < 0.001). Diagnostic plots (not included) display residuals that are slightly heteroscedastic, contain outliers that may be influencing the model, and are somewhat normally distributed. 
 
-**Change all the below to be for hares**
-The relationship between penguin flipper length and body mass appears relatively linear, both across and within species (Figure 3). Simple linear regression revealed that flipper length significantly predicts penguin body mass (p < 0.001, R^2^ = `r round(penguin_lm_glance$r.squared,2)`) with an average slope of $\beta$ = `r round(penguin_lm_tidy$estimate[2], 2)` g mm^-1^ (i.e., for each one millimeter increase in flipper length we expect an average increase in body mass of `r round(penguin_lm_tidy$estimate[2], 2)` g). Flipper length and body mass are strongly, and significantly, positively correlated (Pearson's *r* = `r round(penguin_cor_tidy$estimate,2)`, p < 0.001). Diagnostic plots (not included) reveal normally distributed and homoscedastic residuals. 
-
-```{r penguin_model_graph}
-ggplot(data = penguins, aes(x = flipper_length_mm, y = body_mass_g)) +
-  geom_point(aes(color = species, pch = species), size = 2) +
-  scale_color_manual(values = c("goldenrod2","cyan4","coral"), 
-                     name = "Penguin species") +
-  scale_shape_manual(values = c(16,17,18), 
-                     name = "Penguin species") +
-  geom_smooth(method = "lm", se = FALSE, color = "gray30") +
+```{r}
+ggplot(data = hares, aes(x = hindft, y = weight)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
   theme_minimal() +
-  labs(x = "\nFlipper length (mm)",
-       y = "Body mass (g)\n") +
-  theme(legend.position = c(0.15, 0.7))
+  labs(x = "Hind foot length (mm)",
+       y = "Weight (g)")
 ```
+**UPDATE FOR HARES**
+**Figure 3.** Relationship between flipper length (mm) and body mass (g) for the three penguin species. Points indicate individual penguin measurements (Adélie = gold circles; chinstrap = teal triangles; gentoo = coral diamonds). Linear model summary: $\beta$~1~ = `r round(penguin_lm_tidy$estimate[2], 2)` g mm^-1^, p < 0.001, R^2^ = `r round(penguin_lm_glance$r.squared,2)`, Pearson's *r* = `r round(penguin_cor_tidy$estimate,2)`). Data: Gorman et al. (2014).
 
-**Figure 3.** Relationship between flipper length (mm) and body mass (g) for the three penguin species. Points indicate individual penguin measurements (Adélie = gold circles; chinstrap = teal triangles; gentoo = coral diamonds). Linear model summary: $\beta$~1~ = `r round(penguin_lm_tidy$estimate[2], 2)` g mm^-1^, p < 0.001, R^2^ = `r round(penguin_lm_glance$r.squared,2)`, Pearson's *r* = `r round(penguin_cor_tidy$estimate,2)`).
-```
+## Summary **CHANGE FOR HARES**
 
+Exploratory data analysis reveals the following initial findings: 
+
+- Gentoo penguins are the largest of the three species in both mean flipper length and body mass
+- Male gentoo penguins longer mean flipper length than female gentoos (the difference is significant, and the effect size is large)
+- Flipper length appears linearly related with body mass across all three penguin species; the relationship (by simple linear regression) is significant, with a slope (expected average increase in body mass with a 1 mm increase in flipper length) of `r round(penguin_lm_tidy$estimate[2], 2)` g mm^-1^.
+
+## Citations **CHANGE FOR HARES**
+
+Gorman KB, Williams TD, Fraser WR (2014). Ecological sexual dimorphism and environmental variability within a community of Antarctic penguins (genus Pygoscelis). PLoS ONE 9(3):e90081. https://doi.org/10.1371/journal.pone.0090081
