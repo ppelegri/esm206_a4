@@ -41,9 +41,10 @@ hares_raw <-
 
 ## Initial data wrangling
 
-Convert date column into YYYY-MM-DD format, change class to Date, create column year, create column grid_full with full site names, replace values in column sex with fully spelled out labels
+Filter to retain only juvenile hares, convert date column into YYYY-MM-DD format, change class to Date, create column year, create column grid_full with full site names, replace values in column sex with fully spelled out labels
 ```{r}
 hares <- hares_raw %>% 
+  filter(age == "j") %>% 
   mutate(date = mdy(date)) %>% # replace original date column with new date column in YYYY-MM-DD format in which column class is "Date"
   mutate(year = year(date)) %>% # create new column called year that contains the year, derived from the date column
   mutate(grid_full = case_when( # add a new column grid_full, which contains full site names taken from metadata
@@ -232,6 +233,7 @@ hares_cor <- cor.test(hares$weight, hares$hindft)
 # get tidy version of correlation output
 hares_cor_tidy <- tidy(hares_cor)
 ```
+**Revisit to make sure analysis matches data**
 The relationship between juvenile snowshoe hare weight and hind foot length appears somewhat linear, but with significant heteroscedasticity (Figure 3). Single variable linear regression showed that hind foot length (mm) significantly predicts juvenile hare weight (p < 0.001, R^2^ = `r round(hares_lm_glance$r.squared,2)`) with an average slope of $\beta$ = `r round(hares_lm_tidy$estimate[2], 2)` g mm^-1^ (i.e., for each one millimeter increase in hind foot length we expect an average increase in weight of `r round(hares_lm_tidy$estimate[2], 2)` g). Juvenile hare hind foot length and weight are strongly and significantly positively correlated (Pearson's *r* = `r round(hares_cor_tidy$estimate,2)`, p < 0.001). Diagnostic plots (not included) display residuals that are slightly heteroscedastic, contain outliers that may be influencing the model, and are somewhat normally distributed. 
 
 ```{r}
@@ -242,17 +244,16 @@ ggplot(data = hares, aes(x = hindft, y = weight)) +
   labs(x = "Hind foot length (mm)",
        y = "Weight (g)")
 ```
-**UPDATE FOR HARES**
-**Figure 3.** Relationship between flipper length (mm) and body mass (g) for the three penguin species. Points indicate individual penguin measurements (Adélie = gold circles; chinstrap = teal triangles; gentoo = coral diamonds). Linear model summary: $\beta$~1~ = `r round(penguin_lm_tidy$estimate[2], 2)` g mm^-1^, p < 0.001, R^2^ = `r round(penguin_lm_glance$r.squared,2)`, Pearson's *r* = `r round(penguin_cor_tidy$estimate,2)`). Data: Gorman et al. (2014).
+**Double check P-Value...and understand output from glance**
+**Figure 3.** Relationship between hind foot length (mm) and weight (g) for juvenile snowshow hares. Points indicate individual hare measurements. Linear model summary: $\beta$~1~ = `r round(hares_lm_tidy$estimate[2], 2)` g mm^-1^, p < 0.001, R^2^ = `r round(hares_lm_glance$r.squared,2)`, Pearson's *r* = `r round(hares_cor_tidy$estimate,2)`). Data: Kielland et al. (2017).
 
 ## Summary **CHANGE FOR HARES**
 
 Exploratory data analysis reveals the following initial findings: 
 
-- Gentoo penguins are the largest of the three species in both mean flipper length and body mass
-- Male gentoo penguins longer mean flipper length than female gentoos (the difference is significant, and the effect size is large)
+- Male juvenile snowshoe hares have longer mean hind foot length than female juvenile snowshoe hares (the difference is significant, and the effect size is large)
 - Flipper length appears linearly related with body mass across all three penguin species; the relationship (by simple linear regression) is significant, with a slope (expected average increase in body mass with a 1 mm increase in flipper length) of `r round(penguin_lm_tidy$estimate[2], 2)` g mm^-1^.
 
 ## Citations **CHANGE FOR HARES**
 
-Gorman KB, Williams TD, Fraser WR (2014). Ecological sexual dimorphism and environmental variability within a community of Antarctic penguins (genus Pygoscelis). PLoS ONE 9(3):e90081. https://doi.org/10.1371/journal.pone.0090081
+Kielland, K., F.S. Chapin, R.W. Ruess, and Bonanza Creek LTER. 2017. Snowshoe hare physical data in Bonanza Creek Experimental Forest: 1999-Present ver 22. Environmental Data Initiative. https://doi.org/10.6073/pasta/03dce4856d79b91557d8e6ce2cbcdc14
