@@ -11,10 +11,6 @@ A 4 - 5 sentence "mini-introduction" to what this study is exploring, including 
 ## Data and Analyses **UPDATE**
 A 3 - 4 sentence section in which you briefly describe the data, including citation & credit as needed, and provide an overview of the main analysis, statistical methods and tools used.
 
-**Data citation:** Kielland, K., F.S. Chapin, R.W. Ruess, and Bonanza Creek LTER. 2017. Snowshoe hare physical data in Bonanza Creek Experimental Forest: 1999-Present ver 22. Environmental Data Initiative. https://doi.org/10.6073/pasta/03dce4856d79b91557d8e6ce2cbcdc14
-
-**Link to metadata:** https://portal.edirepository.org/nis/metadataviewer?packageid=knb-lter-bnz.55.22
-
 ## Setup
 
 Attach packages
@@ -44,7 +40,7 @@ hares_raw <-
 Filter to retain only juvenile hares, convert date column into YYYY-MM-DD format, change class to Date, create column year, create column grid_full with full site names, replace values in column sex with fully spelled out labels
 ```{r}
 hares <- hares_raw %>% 
-  filter(age == "j") %>% 
+  filter(age == "j") %>% # filter to only retain observations for juvenile hares
   mutate(date = mdy(date)) %>% # replace original date column with new date column in YYYY-MM-DD format in which column class is "Date"
   mutate(year = year(date)) %>% # create new column called year that contains the year, derived from the date column
   mutate(grid_full = case_when( # add a new column grid_full, which contains full site names taken from metadata
@@ -58,8 +54,9 @@ hares <- hares_raw %>%
 ```
 
 ## Visualize annual juvenile hare trap counts
+### **Customize ggplot**
 
-Count the total number of juvenile hare trappings during each year of the study, and create a finalized data visualization of the counts by year. Include a figure caption below the figure in your report. 
+Count the total number of juvenile hare trappings during each year of the study and create a finalized data visualization of the counts by year.
 ```{r, fig.cap = "**Figure 1: Count of Juvenile Snowshoe Hares.** This graph displays counts of juvenile snowshe hares that were trapped in Bonanza Creek Experimental Forest. The observation period spans 1998 to 2012."}
 # Group hares by year and create count per year
 hares_trap_counts <- hares %>% 
@@ -96,8 +93,7 @@ General/notable trends?
 These are absolute counts, but this count is also impacted by effort (e.g. the number of days and number of traps in the study each year). What would you suggest be done moving forward (you are not expected to actually do this) to standardize the juvenile hare population in future analyses?
 
 ## Visualize juvenile hare weights
-
-Create a finalized data visualization (or visualizations) in which you compare **juvenile hare weights by sex and site (grid)** (ignore other variables). You should include groups where these variables are not recorded (`NA`). Include finalized figure captions below your visualization(s).
+### **Consider customizing ggplot further**
 
 Create a faceted scatter plot comparing juvenile hare weights by sex and site, including groups where these variables are not recorded (NA)
 ```{r, fig.cap = "**Figure 2: Juvenile hare weights by sex and site.** These three graphs display juvenile hare weights (g) by sex. The graphs are faceted by site of observation."}
@@ -149,6 +145,7 @@ kable(hares_wt_sex,
   kable_styling(full_width = FALSE)
 ```
 
+### **Confirm that my comments are all correct**
 ```{r, include = FALSE}
 # Data exploration to determine whether t.test is appropriate
 
@@ -171,6 +168,7 @@ qqnorm(m_hares) # Looks a little skewed but normal enough
 # Overall: assumptions of normality hold. Because of large sample size (>1000) Central Limit Theorem holds and we expect means to be normally distributed. So, two-sample t-test is ok for means comparison.
 ```
 
+### **Review results and make sure that interpretations are correct. Reference diagnostic plots.**
 Compare means: difference in means, effect size, unpaired two-sample t-test
 ```{r}
 # create vector f_hares that contains weights only of female hares
@@ -257,4 +255,6 @@ Exploratory data analysis reveals the following initial findings:
 
 ## Citations 
 
-Kielland, K., F.S. Chapin, R.W. Ruess, and Bonanza Creek LTER. 2017. Snowshoe hare physical data in Bonanza Creek Experimental Forest: 1999-Present ver 22. Environmental Data Initiative. https://doi.org/10.6073/pasta/03dce4856d79b91557d8e6ce2cbcdc14
+**Data citation:** Kielland, K., F.S. Chapin, R.W. Ruess, and Bonanza Creek LTER. 2017. Snowshoe hare physical data in Bonanza Creek Experimental Forest: 1999-Present ver 22. Environmental Data Initiative. https://doi.org/10.6073/pasta/03dce4856d79b91557d8e6ce2cbcdc14
+
+**Link to metadata:** https://portal.edirepository.org/nis/metadataviewer?packageid=knb-lter-bnz.55.22
