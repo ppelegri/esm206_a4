@@ -53,7 +53,7 @@ hares <- hares_raw %>%
     sex %in% c("NA") ~ "NA"))
 ```
 
-## Visualize annual juvenile hare trap counts
+## Juvenile snowshoe hare trap counts
 ### **Customize ggplot**
 
 Count the total number of juvenile hare trappings during each year of the study and create a finalized data visualization of the counts by year.
@@ -92,7 +92,7 @@ Mean or median annual number of juvenile hares trapped?
 General/notable trends?
 These are absolute counts, but this count is also impacted by effort (e.g. the number of days and number of traps in the study each year). What would you suggest be done moving forward (you are not expected to actually do this) to standardize the juvenile hare population in future analyses?
 
-## Visualize juvenile hare weights
+## Juvenile hare weights
 ### **Consider customizing ggplot further**
 
 Create a faceted scatter plot comparing juvenile hare weights by sex and site, including groups where these variables are not recorded (NA)
@@ -127,7 +127,7 @@ kable(hares_wt_sex_site,
 - Have I updated graph labels, headers in facets, etc. to make it as straightforward as possible for viewers?
 - Have I simplified and finalized my data visualization(s) to include components that are useful for the audience?
 
-## Juvenile weight comparison for male and female snowshoe hares
+## Male and female hare weight comparison
 
 Create a table of summary statistics on hare weight by sex
 ```{r}
@@ -203,8 +203,9 @@ male_sd <- sd(m_hares)
 
 On average, juvenile female snowshoe hares are heavier than juvenile male snowshoe hares (`r round(female_mean,2)` $\pm$ `r round(female_sd, 2)` g and `r round(male_mean,2)` $\pm$ `r round(male_sd, 2)` g, respectively. The absolute difference in means is `r round(female_mean, 2) - round(male_mean, 2)` g, a difference of `r round((female_mean - male_mean)/((female_mean + male_mean)/2)*100, 2)`%. The difference in means is significant (Welch's two-sample t-test: t(`r round(hares_t_tidy$parameter,2)`) = `r round(hares_t_tidy$statistic,2)`, p-value = `r hares_t_tidy$p.value`, and the effect size is small (Cohen's *d* = `r round(hares_cohen$estimate,2)`).
 
-## Relationship between juvenile snowshoe hare weight and hind foot length
+## Relationship between hare weight and hind foot length
 
+### **Customize ggplot...look at labels and color, maybe size of point**
 Visually explore relationship between hare weight and hind foot length
 ```{r}
 ggplot(hares,
