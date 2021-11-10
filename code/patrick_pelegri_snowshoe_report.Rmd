@@ -24,7 +24,6 @@ library(lubridate)
 library(effsize)
 library(broom)
 library(ggbeeswarm)
-library(gridExtra)
 
 
 ```
@@ -66,11 +65,12 @@ hares_trap_counts <- hares %>%
 # Visualize count of trapped hares by year
 ggplot(hares_trap_counts,
        aes(x = year, y = count)) +
-  geom_line(color = "firebrick4") +
-  geom_point(color = "firebrick", size = 1) +
+  geom_col(fill = "royalblue3",
+           width = 0.6) +
   labs(x = "Year", y = "Count") +
-  theme(axis.title.x = element_text(size = 12),
-        axis.title.y = element_text(size = 12))
+  theme(axis.title.x = element_text(size = 12, face = "bold"),
+        axis.title.y = element_text(size = 12, face = "bold")) +
+  theme_minimal()
 ```
 
 Create table displaying maximum, minimum, and median annual counts of juvenile snowshoe hares
@@ -89,40 +89,44 @@ kable(hares_counts_stats, # create table
   kable_styling(full_width = FALSE) # make table narrower
 ```
 
-**[INSERT 3-4 sentences describing major takeaways].** What were the minimum and maximum counts of juvenile hare trappings?
-Mean or median annual number of juvenile hares trapped?
-General/notable trends?
-These are absolute counts, but this count is also impacted by effort (e.g. the number of days and number of traps in the study each year). What would you suggest be done moving forward (you are not expected to actually do this) to standardize the juvenile hare population in future analyses?
+The minimum count of juvenile snowshoe hares trappings was `r hares_counts_stats$min_count`, and the maximum count was `r hares_counts_stats$max_count`. Note that there is no data for years 2003 and 2009. The median count of juvenile snowshoe hares trappings, rounded to the nearest integer, was `r round(hares_counts_stats$med_count,0)`. We see a general decline in the number of juvenile snowshoe hares trap counts during the study period. Within that general trend, there is significant variation in trap counts from year to year. To standardize data collection on snowshoe hare trap counts, I recommend conducting future counts by conducting a consistent series of transects at the same time of year.
 
 ## Juvenile hare weights **Customize ggplot** **Change table to graph**
 
 Create a faceted scatter plot comparing juvenile hare weights by sex and site, including groups where these variables are not recorded (NA)
 ```{r, fig.cap = "**Figure 2: Juvenile hare weights by sex and site.** These three graphs display juvenile hare weights (g) by sex. The graphs are faceted by site of observation."}
 
-ggplot(data = hares, aes(x = sex, y = weight)) +
-  geom_beeswarm(aes(color = grid_full)) +
-  scale_color_manual(values = c("goldenrod2","cyan4","coral")) +
-  geom_boxplot(fill = NA, width = 0.2, outlier.color = NA) +
-  stat_summary(fun=mean, 
-               geom="point", 
-               shape=20, 
-               size=3, 
-               color="gray14", 
+ggplot(data = hares, 
+       aes(x = sex, y = weight)) +
+  geom_beeswarm(aes(color = grid_full)) + # use geom_beeswarm to complement box plot, use color to designate site
+  scale_color_manual(values = c("chocolate2","darkolivegreen4","deepskyblue3")) +
+  geom_boxplot(fill = NA, width = 0.2, outlier.color = NA) + # apply box plots, make them transparent, don't highlight outliers
+  stat_summary(fun=mean, # put the mean on the graph as a round point
+               geom="point",
+               shape=20,
+               size=3,
+               color="gray14",
                fill="gray14") +
   theme_minimal() +
-  facet_wrap(~grid_full) +
+  theme(axis.title = element_text(face = "bold", 
+                                  margin = margin(t = 0, r = 0, b = 20, l = 20),
+                                  size = 11)) +
+  theme(legend.title = element_text(face = "bold")) +
+  facet_wrap(~grid_full) + # facet graph by site
   labs(x = "Sex",
        y = "Weight (g)",
        color = "Site")
-
-# ggplot(hares,
-#        aes(x = sex, y = weight, 
-#            color = grid_full)) +
-#   geom_jitter() +
-#   facet_wrap(~grid_full) +
-#   labs(x = "Sex", y = "Weight (g)", color = "Site")
 ```
 
+
+**Then, in 2 - 3 sentences below your visualization(s) describe in text the main takeaways that you would want the audience to understand from your figures.**
+
+- Have I updated graph labels, headers in facets, etc. to make it as straightforward as possible for viewers?
+- Have I simplified and finalized my data visualization(s) to include components that are useful for the audience?
+
+## Male and female hare weight comparison **Update explanatory text**
+
+**Choose one: either this table or the one below**
 Compare mean and standard deviation of hare weight by sex and site
 ```{r}
 # Create a data frame from hares that groups by sex and site name ("grid_full") and calculates summary statistics for hare weight
@@ -150,13 +154,7 @@ kable(hares_stats_bonbs,
   kable_styling(full_width = FALSE)
 ```
 
-**Then, in 2 - 3 sentences below your visualization(s) describe in text the main takeaways that you would want the audience to understand from your figures.**
-
-- Have I updated graph labels, headers in facets, etc. to make it as straightforward as possible for viewers?
-- Have I simplified and finalized my data visualization(s) to include components that are useful for the audience?
-
-## Male and female hare weight comparison **Update explanatory text**
-
+**Choose one: either this table or the one above**
 Create a table of summary statistics on juvenile snowshoe hare weight by sex
 ```{r}
 # Create a data frame from hares that groups by sex and calculates summary statistics for hare weight
