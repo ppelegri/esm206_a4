@@ -5,7 +5,7 @@ date: "11/5/2021"
 output: html_document
 ---
 
-## Introduction **UPDATE**
+## Introduction **UPDATE** **Consider subheaders throughout document**
 A 4 - 5 sentence "mini-introduction" to what this study is exploring, including basic background information about the subject, site and study (with citations as needed), and a brief overview of what is included in the exploratory report. 
 
 ## Data and Analyses **UPDATE**
@@ -47,16 +47,15 @@ hares <- hares_raw %>%
     grid %in% c("bonrip") ~ "Bonanza Riparian",
     grid %in% c("bonmat") ~ "Bonanza Mature",
     grid %in% c("bonbs") ~ "Bonanza Black Spruce")) %>% 
-  mutate(sex = case_when(
+  mutate(sex = case_when( # change variable names for sex
     sex %in% c("m") ~ "Male",
     sex %in% c("f") ~ "Female",
     sex %in% c("NA") ~ "NA"))
 ```
 
-## Juvenile snowshoe hare trap counts
-### **Customize ggplot**
+## Juvenile snowshoe hare trap counts **Customize ggplot** **Insert takeaways**
 
-Count the total number of juvenile hare trappings during each year of the study and create a finalized data visualization of the counts by year.
+**CUSTOMIZE GGPLOT** Count the total number of juvenile hare trappings during each year of the study and create a finalized data visualization of the counts by year.
 ```{r, fig.cap = "**Figure 1: Count of Juvenile Snowshoe Hares.** This graph displays counts of juvenile snowshe hares that were trapped in Bonanza Creek Experimental Forest. The observation period spans 1998 to 2012."}
 # Group hares by year and create count per year
 hares_trap_counts <- hares %>% 
@@ -74,8 +73,8 @@ ggplot(hares_trap_counts,
 Create table displaying maximum, minimum, and median annual counts of juvenile snowshoe hares
 ```{r}
 # Group hares by year and calculate count per year as well as minimum count, maximum count, and median count
-hares_counts_stats <- hares_trap_counts %>% 
-  summarize(min_count = min(count),
+hares_counts_stats <- hares_trap_counts %>% # start from hare counts df
+  summarize(min_count = min(count), # calculate minimum, maximum, and median count
             max_count = max(count),
             med_count = median(count))
   
@@ -92,9 +91,9 @@ Mean or median annual number of juvenile hares trapped?
 General/notable trends?
 These are absolute counts, but this count is also impacted by effort (e.g. the number of days and number of traps in the study each year). What would you suggest be done moving forward (you are not expected to actually do this) to standardize the juvenile hare population in future analyses?
 
-## Juvenile hare weights
-### **Consider customizing ggplot further**
+## Juvenile hare weights **Customize ggplot** **Change table to graph**
 
+**Customize this ggplot** 
 Create a faceted scatter plot comparing juvenile hare weights by sex and site, including groups where these variables are not recorded (NA)
 ```{r, fig.cap = "**Figure 2: Juvenile hare weights by sex and site.** These three graphs display juvenile hare weights (g) by sex. The graphs are faceted by site of observation."}
 ggplot(hares,
@@ -105,8 +104,8 @@ ggplot(hares,
   labs(x = "Sex", y = "Weight (g)", color = "Site")
 ```
 
+**Change this to faceted graph like Sarah did - instead of table** 
 Compare mean and standard deviation of hare weight by sex and site
-**I'm asked to make a similar table below; should I still include this table here?**
 ```{r}
 # Create a data frame from hares that groups by sex and site name ("grid_full") and calculates summary statistics for hare weight
 hares_wt_sex_site <- hares %>% 
